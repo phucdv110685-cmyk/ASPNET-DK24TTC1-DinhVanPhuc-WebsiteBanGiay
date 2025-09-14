@@ -1,0 +1,124 @@
+﻿@model ShoeShop.Models.Voucher
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-body-light">
+    <div class="content content-full">
+        <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+            <h1 class="flex-grow-1 fs-3 fw-semibold my-2 my-sm-3">Add Voucher</h1>
+            <nav class="flex-shrink-0 my-2 my-sm-0 ms-sm-3" aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-alt">
+                    <li class="breadcrumb-item">
+                        <a href="javascript:void(0)">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="javascript:void(0)">Vouchers</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Add</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <div class="block block-rounded">
+        <div class="block-header block-header-default">
+            <a class="btn btn-alt-secondary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to list</a>
+        </div>
+        <div class="block-content">
+            <div class="row">
+                <div class="col-md-6 mx-auto py-3">
+                    <form asp-action="Create" method="post">
+                        @* @Html.AntiForgeryToken()  *@
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group mb-2">
+                            <label asp-for="Code" class="form-label">Voucher Code</label>
+                            <input asp-for="Code" class="form-control form-control-alt" id="voucherCode" />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <button type="button" class="btn btn-secondary" id="randomCodeBtn">Random Code</button>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label asp-for="Title" class="form-label">Title</label>
+                            <input asp-for="Title" class="form-control form-control-alt" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <input asp-for="Description" class="form-control form-control-alt" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label asp-for="Discount" class="form-label">Discount</label>
+                            <input asp-for="Discount" class="form-control form-control-alt" />
+                            <span asp-validation-for="Discount" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label asp-for="Number" class="form-label">Number of Vouchers</label>
+                            <input asp-for="Number" class="form-control form-control-alt" />
+                            <span asp-validation-for="Number" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label asp-for="Type" class="form-label">Discount Type</label>
+                            <select asp-for="Type" class="form-control form-control-alt">
+                                <option value="true">Percentage</option>
+                                <option value="false">Fixed Amount</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="Status" class="form-check-input" type="checkbox" />
+                            </div>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label asp-for="Discount" class="form-label">Discount</label>
+                            <input asp-for="Discount" class="form-control form-control-alt" />
+                            <span asp-validation-for="Discount" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script type="text/javascript">
+        function generateRandomCode() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let randomCode = '';
+            for (let i = 0; i < 10; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                randomCode += characters[randomIndex];
+            }
+            return randomCode;
+        }
+
+        document.getElementById("randomCodeBtn").addEventListener("click", function () {
+            const code = generateRandomCode();
+            document.getElementById("voucherCode").value = code; 
+        });
+    </script>
+}

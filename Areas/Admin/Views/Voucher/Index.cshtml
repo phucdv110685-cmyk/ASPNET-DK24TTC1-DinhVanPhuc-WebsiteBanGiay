@@ -1,0 +1,148 @@
+﻿@{
+    ViewData["Title"] = "Vouchers";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var vouchers = ViewBag.Voucher;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/admin/js/plugins/sweetalert2/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/admin/js/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="~/admin/js/plugins/datatables-bs5/css/dataTables.bootstrap5.min.css">
+}
+
+<div class="content">
+    <div class="block block-rounded">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">List Vouchers</h3>
+            <div class="block-options">
+                <a class="btn btn-hero btn-primary" asp-action="Create">
+                    <i class="fa-regular fa-plus"></i> Add New Voucher
+                </a>
+            </div>
+        </div>
+        <div class="block-content pb-3 pt-0">
+            <table class="table align-middle" id="voucher-table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Code</th>
+                        <th>Status</th>
+                        <th>Type</th>
+                        <th>Discount</th>
+                        <th>Number</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var voucher in vouchers)
+                    {
+                        <tr>
+                            <td class="text-center">@voucher.Id</td>
+                            <td>@voucher.Title</td>
+                            <td>@voucher.Description</td>
+                            <td>@voucher.Code</td>
+                            <td>@(voucher.Status ? "<span class='badge rounded-pill bg-success'>Active</span>" : "<span class='badge rounded-pill bg-danger'>Inactive</span>")</td>
+                            <td>@(voucher.Type ? "Discount" : "Coupon")</td>
+                            <td>@voucher.Discount%</td>
+                            <td>@voucher.Number</td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a href="@Url.Action("Edit", "Voucher", new { id = voucher.Id })" class="btn btn-sm btn-alt-secondary">
+                                        <i class="fa fa-pencil-alt"></i>
+                                    </a>
+                                    <button type="button" data-id="@voucher.Id" class="btn btn-sm btn-alt-secondary btn-delete">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/admin/js/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/admin/js/plugins/select2/js/select2.full.min.js"></script>
+    <script src="~/admin/js/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/plugins/datatables-bs5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $("#voucher-table").DataTable({
+                pageLength: 10,
+                lengthMenu: [
+                    [5, 10, 20],
+                    [5, 10, 20]
+                ],
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "/admin/voucher/getvoucher",
+                    "type": "POST",
+                    "datatype": "json",
+                    "data": function (d) {
+                        d.query = $('#voucher-query').val();
+                    }
+                },
+                "columns": [
+                    { "data": "id", "name": "Id", "className": "text-center" },
+                    { "data": "title", "name": "Title" },
+                    { "data": "description", "name": "Description" },
+                    { "data": "code", "name": "Code" },
+                    { "data": "status", "name": "Status", "render": function (data) { return data ? "<span class='badge rounded-pill bg-success'>Active</span>" : "<span class='badge rounded-pill bg-danger'>Inactive</span>"; } },
+                    { "data": "type", "name": "Type", "render": function (data) { return data ? "Discount" : "Coupon"; } },
+                    { "data": "discount", "name": "Discount" },
+                    { "data": "number", "name": "Number" },
+                    {
+                        "render": function (data, type, row) {
+                            return `
+                                        <div class="btn-group">
+                                            <a href="/admin/voucher/edit/${row.id}" class="btn btn-sm btn-alt-secondary">
+                                                <i class="fa fa-pencil-alt"></i>
+                                            </a>
+                                            <button type="button" data-id="${row.id}" class="btn btn-sm btn-alt-secondary btn-delete">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </div>`;
+                        }, "className": "text-center"
+                    }
+                ]
+            });
+
+            $(document).on("click", ".btn-delete", async function () {
+                let voucherId = $(this).data("id");
+
+                let result = await Swal.fire({
+                    title: "Are you sure?",
+                    text: "Would you like to delete this voucher?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel"
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        let response = await $.ajax({
+                            url: `./voucher/Delete/${voucherId}`,
+                            type: "POST",
+                        });
+
+                        if (response.success) {
+                            Swal.fire("Deleted!", response.message, "success");
+                            table.draw(); // Refresh table
+                        } else {
+                            Swal.fire("Error!", response.message, "error");
+                        }
+                    } catch (error) {
+                        Swal.fire("Error!", "There was a problem deleting the voucher.", "error");
+                    }
+                }
+            });
+        });
+    </script>
+}
